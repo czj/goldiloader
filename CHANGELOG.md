@@ -5,8 +5,9 @@
   `references` or a condition on the included table. **Thanks [czj](https://github.com/czj)**
 - Auto eager load associations of models loaded with `load_async`. **Thanks [czj](https://github.com/czj)**
 - Fix [issue 166](https://github.com/salsify/goldiloader/issues/166) - Stop auto eager loading through associations
-  whose scope has anything other than `distinct`, since Rails preloads them from the source records an unscoped
-  sibling already loaded and drops their scope. **Thanks [czj](https://github.com/czj)**
+  whose scope has anything other than `distinct` when the records they go through are already loaded e.g. by an
+  unscoped sibling, since Rails preloads them from those records and drops their scope.
+  **Thanks [czj](https://github.com/czj)**
 
 ## 6.0.1
 - Add Ruby 4.0 testing.

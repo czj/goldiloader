@@ -150,6 +150,8 @@ class Post < ActiveRecord::Base
 
   has_and_belongs_to_many :tags_without_auto_include, -> { auto_include(false) }, join_table: :post_tags,
                           class_name: 'Tag'
+  has_and_belongs_to_many :habtm_tags_owned_by_users, -> { where(owner_type: 'User') }, join_table: :post_tags,
+                          class_name: 'Tag'
 
   has_many_attached :images
 

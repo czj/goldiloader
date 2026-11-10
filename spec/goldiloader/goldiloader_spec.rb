@@ -441,7 +441,7 @@ describe Goldiloader do
         expect(blogs.first.posts_ordered_by_author.map(&:author).map(&:address).map(&:city)).to eq sorted_post_cities
       end
 
-      it_behaves_like "it doesn't auto eager load the association", :authors_with_join
+      it_behaves_like "it auto eager loads the association", :authors_with_join
     end
 
     context "associations with an unscoped" do
@@ -516,7 +516,60 @@ describe Goldiloader do
     end
   end
 
-  context "scoped has_many through associations after an unscoped sibling was auto eager loaded" do
+  context "scoped has_many through associations" do
+    let(:posts) { Post.order(:title).to_a }
+    let(:tags_owned_by_users) { [[child_tag1], [child_tag1], [child_tag1], [child_tag3]] }
+
+    context "when the through association isn't loaded" do
+      it "applies the scope correctly" do
+        expect(posts.map(&:tags_owned_by_users)).to eq tags_owned_by_users
+      end
+
+      it "auto eager loads the association" do
+        posts.first.tags_owned_by_users.to_a
+        posts.drop(1).each do |post|
+          expect(post.association(:tags_owned_by_users)).to be_loaded
+        end
+      end
+    end
+
+    context "when an unscoped sibling was auto eager loaded" do
+      before do
+        posts.first.tags.to_a
+      end
+
+      it "applies the scope correctly" do
+        expect(posts.map(&:tags_owned_by_users)).to eq tags_owned_by_users
+      end
+
+      it "doesn't auto eager load the association" do
+        posts.first.tags_owned_by_users.to_a
+        posts.drop(1).each do |post|
+          expect(post.association(:tags_owned_by_users)).not_to be_loaded
+        end
+      end
+    end
+
+    context "when the through association is only loaded for some models" do
+      before do
+        Goldiloader.disabled { posts.first.post_tags.each(&:tag) }
+      end
+
+      it "applies the scope correctly" do
+        expect(posts.reverse.map(&:tags_owned_by_users).reverse).to eq tags_owned_by_users
+      end
+
+      it "only auto eager loads the association for the other models" do
+        posts.second.tags_owned_by_users.to_a
+        expect(posts.first.association(:tags_owned_by_users)).not_to be_loaded
+        posts.drop(2).each do |post|
+          expect(post.association(:tags_owned_by_users)).to be_loaded
+        end
+      end
+    end
+  end
+
+  context "scoped has_and_belongs_to_many associations after an unscoped sibling was auto eager loaded" do
     let(:posts) { Post.order(:title).to_a }
 
     before do
@@ -524,13 +577,13 @@ describe Goldiloader do
     end
 
     it "applies the scope correctly" do
-      expect(posts.map(&:tags_owned_by_users)).to eq [[child_tag1], [child_tag1], [child_tag1], [child_tag3]]
+      expect(posts.map(&:habtm_tags_owned_by_users)).to eq [[child_tag1], [child_tag1], [child_tag1], [child_tag3]]
     end
 
-    it "doesn't auto eager load the association" do
-      posts.first.tags_owned_by_users.to_a
+    it "auto eager loads the association" do
+      posts.first.habtm_tags_owned_by_users.to_a
       posts.drop(1).each do |post|
-        expect(post.association(:tags_owned_by_users)).not_to be_loaded
+        expect(post.association(:habtm_tags_owned_by_users)).to be_loaded
       end
     end
   end
