@@ -9,6 +9,8 @@
   `auto_include: false` option to opt out.
   **Thanks [czj](https://github.com/czj)**
 - Optimize custom preloads.
+- Fix preloading scoped through associations with a `source_type` on Rails edge, which eager loads their source by
+  its reflection. **Thanks [czj](https://github.com/czj)**
 
 ## 6.0.1
 - Add Ruby 4.0 testing.

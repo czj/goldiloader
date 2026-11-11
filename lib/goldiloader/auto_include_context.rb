@@ -33,8 +33,14 @@ module Goldiloader
                               end
 
         associations.each do |association|
+          # Rails eager loads the source of a through association with a `source_type` by its reflection
+          association_name = if association.is_a?(::ActiveRecord::Reflection::AbstractReflection)
+                               association.name
+                             else
+                               association
+                             end
           nested_models = models.flat_map do |model|
-            model.association(association).target
+            model.association(association_name).target
           end
           nested_models.compact!
 

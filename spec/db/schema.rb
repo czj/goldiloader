@@ -75,6 +75,8 @@ class Tag < ActiveRecord::Base
              foreign_key: :owner_id, foreign_type: :owner_type
   has_many :post_tags
   has_many :posts, through: :post_tags
+  has_many :children_owner_users_named_author1, -> { where(name: 'author1') }, through: :children, source: :owner,
+                                                                             source_type: 'User'
 end
 
 class PostTag < ActiveRecord::Base

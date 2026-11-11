@@ -317,6 +317,12 @@ describe Goldiloader do
     expect(tags.third.scoped_owner).to eq author2
   end
 
+  it "preloads scoped through associations with a source_type" do
+    tags = Tag.where(parent_id: nil).order(:name).preload(:children_owner_users_named_author1).to_a
+
+    expect(tags.map(&:children_owner_users_named_author1)).to eq [[author1], []]
+  end
+
   it "sets inverse associations properly" do
     blogs = Blog.order(:name).to_a
 
